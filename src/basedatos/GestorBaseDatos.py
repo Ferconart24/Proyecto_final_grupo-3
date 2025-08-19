@@ -16,15 +16,15 @@ class GestorBaseDatos:
         """Conecta a SQL Server usando Windows Authentication."""
         try:
             self.conn = pyodbc.connect(self.conn_str)
-            print("✅ Conexión establecida con SQL Server (Windows Authentication)")
+            print(" Conexión establecida con SQL Server (Windows Authentication)")
         except Exception as e:
             self.conn = None
-            print("❌ Error en la conexión:", e)
+            print(" Error en la conexión:", e)
 
     def crear_tabla_desde_dataframe(self, df, tabla):
         """Crea una tabla automáticamente según el DataFrame"""
         if not self.conn:
-            print("❌ No hay conexión activa.")
+            print(" No hay conexión activa.")
             return
 
         cursor = self.conn.cursor()
@@ -50,12 +50,12 @@ class GestorBaseDatos:
         """
         cursor.execute(query)
         self.conn.commit()
-        print(f"✅ Tabla '{tabla}' creada/verificada en SQL Server")
+        print(f" Tabla '{tabla}' creada/verificada en SQL Server")
 
     def insertar_dataframe(self, df, tabla):
         """Inserta un DataFrame completo en la tabla"""
         if not self.conn:
-            print("❌ No hay conexión activa.")
+            print(" No hay conexión activa.")
             return
 
         cursor = self.conn.cursor()
@@ -67,12 +67,12 @@ class GestorBaseDatos:
             cursor.execute(query, tuple(row))
 
         self.conn.commit()
-        print(f"✅ {len(df)} registros insertados en '{tabla}'")
+        print(f" {len(df)} registros insertados en '{tabla}'")
 
     def consultar(self, query):
         """Ejecuta una consulta y devuelve un DataFrame"""
         if not self.conn:
-            print("❌ No hay conexión activa.")
+            print(" No hay conexión activa.")
             return pd.DataFrame()
         return pd.read_sql(query, self.conn)
 
@@ -81,6 +81,6 @@ class GestorBaseDatos:
         if self.conn:
             self.conn.close()
             self.conn = None
-            print("🔒 Conexión cerrada")
+            print(" Conexión cerrada")
         else:
-            print("❌ No había conexión activa para cerrar")
+            print(" No había conexión activa para cerrar")
