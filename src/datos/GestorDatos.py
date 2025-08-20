@@ -1,44 +1,36 @@
+#datos/ → Clase GestorDatos: encargada de cargar, transformar y exportar
+#archivos CSV, Excel, etc.
+
 import pandas as pd
-import os
 
-class GestorDatos:
-    def __init__(self, path_csv):
-        self.path_csv = path_csv
-        self.df = None
+# 1. Cargar archivo
 
-    def cargar(self):
-        """Carga el CSV original"""
-        if not os.path.exists(self.path_csv):
-            raise FileNotFoundError(f"No se encuentra el archivo: {self.path_csv}")
-        self.df = pd.read_csv(self.path_csv)
-        return self.df
+df = pd.read_csv("C:\\Users\\victo\OneDrive\\Escritorio\\New folder\\Proyecto_final_grupo-3\\data\\raw\Datos_Abiertos_ARESEP_Flujo_vehicular_CONAVI_.csv")
 
-    def limpiar(self):
-        """Aplica limpieza básica"""
-        df_clean = self.df.copy()
+# 2. Copia de seguridad para trabajar
+df_clean = df.copy()
 
-        # Quitar espacios extra en nombres de columnas
-        if "Mes" in df_clean.columns:
-            df_clean["Mes"] = df_clean["Mes"].str.strip()
+#  3. Limpieza básica
+# Quitar espacios extra en nombres de meses
+df_clean["Mes"] = df_clean["Mes"].str.strip()
 
-        if "Puesto de Peaje" in df_clean.columns:
-            df_clean["Puesto de Peaje"] = df_clean["Puesto de Peaje"].str.strip().str.title()
+# Normalizar texto en columnas de tipo object (en este caso Puesto de Peaje)
+df_clean["Puesto de Peaje"] = df_clean["Puesto de Peaje"].str.strip().str.title()
 
-        # Eliminar filas donde el puesto de peaje sea "Naranjo"
-        if "Puesto de Peaje" in df_clean.columns:
-            df_clean = df_clean[df_clean["Puesto de Peaje"] != "Naranjo"]
+# 4. Eliminar filas donde el puesto de peaje sea "Naranjo"
+df_clean = df_clean[df_clean["Puesto de Peaje"] != "Naranjo"]
 
-        # Eliminar columna con demasiados nulos
-        if "Cuatro Ejes" in df_clean.columns:
-            df_clean = df_clean.drop(columns=["Cuatro Ejes"])
+# 5. Manejo de valores nulos
+# Eliminar columna con demasiados nulos (Cuatro Ejes)
+if "Cuatro Ejes" in df_clean.columns:
+    df_clean = df_clean.drop(columns=["Cuatro Ejes"])
 
-        # Rellenar nulos restantes con 0
-        df_clean = df_clean.fillna(0)
+# Rellenar nulos restantes con 0 (porque son conteos de vehículos)
+df_clean = df_clean.fillna(0)
 
-        self.df = df_clean
-        return self.df
+# 6. Guardar dataset limpio (solo columnas originales)
+output_path = "peajes_clean.csv"
+df_clean.to_csv(output_path, index=False)
 
-    def exportar_csv(self, output_path):
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        self.df.to_csv(output_path, index=False)
-        print(f"Archivo guardado en: {output_path}")
+print(" Limpieza completada (sin Naranjo, sin columnas extra).")
+print(f"Archivo guardado en: {output_path}")
