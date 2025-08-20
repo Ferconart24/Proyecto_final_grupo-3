@@ -1,5 +1,6 @@
 #modelos/ → Clase ModeloML: entrena y evalúa modelos supervisados (regresión
 #o clasificación).
+
 # src/modelos/modelo_ml.py
 import pandas as pd
 from sklearn.model_selection import train_test_split
