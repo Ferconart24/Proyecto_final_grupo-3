@@ -1,4 +1,3 @@
-
 import os
 import json
 import pandas as pd
@@ -96,6 +95,24 @@ def main():
         print(f"Error al integrar datos de clima y contaminación: {e}")
         gestor_db.cerrar()
         return
+
+    # --- Implementación del Modelo de Machine Learning ---
+    print("\n--- Iniciando el proceso de Machine Learning ---")
+    features_regresion = ['pm10', 'CO', 'NO2', 'O3', 'TempMax', 'TempMin', 'Precipitacion', 'Mes']
+
+    modelo_regresion = ModeloML(df=df_clima_contaminacion, tipo_modelo="regresion", target_column="pm2_5")
+    if modelo_regresion.prepare_data(features_list=features_regresion):
+        modelo_regresion.train_model(algorithm="RandomForest")
+        modelo_regresion.evaluate_model()
+        modelo_path = os.path.join(carpeta_modelos, "modelo_pm25_regresion.joblib")
+        modelo_regresion.save_model(modelo_path)
+
+        if not modelo_regresion.X_test.empty:
+            sample_new_data = modelo_regresion.X_test.head(1)
+            prediction = modelo_regresion.predict(sample_new_data)
+            print(f"\nPredicción de PM2.5 para una muestra: {prediction[0]:.2f} μg/m³")
+
+    print("\n--- Fin del proceso de Machine Learning ---")
 
     # --- Cerrar conexión ---
     gestor_db.cerrar()
